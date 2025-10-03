@@ -17,7 +17,7 @@
     4.  Detaylı Bakış (NOS): Blastoid/intermedier morfolojinin bir dışlama tanısı olduğuna odaklan.
     5.  Tanısal İş Akışı: Kullanıcıyı süreç boyunca yönlendirmek için HTML/CSS ile merkezi bir akış şeması oluştur.
     6.  Ayırıcı Tanılar: HGBCL'yi Burkitt Lenfoma, DBBHL, B-ALL ve Blastoid Mantle Hücreli Lenfoma gibi önemli taklitçilerden ayırmak için bir çubuk grafik ve karşılaştırma kartları kullan.
-    7.  Gemini AI Araçları: Öğrenmeyi geliştirmek için yapay zeka destekli vaka çalışması oluşturma amacıyla interaktif bir bölüm ekle.
+    7.  Vaka Soruları: Öğrenmeyi pekiştirmek için statik, TUS/YDUS tarzı vaka soruları içeren interaktif bir bölüm ekle.
     8.  Önemli Notlar: En kritik tanısal ipuçlarıyla sonlandır.
 
     Görselleştirme Seçimleri (SVG / MERMAID JS KULLANILMADI):
@@ -108,18 +108,29 @@
             color: #005082;
             white-space: nowrap;
         }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #00A1E4;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 2rem auto;
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            text-align: left;
+            background-color: white;
+            transition: background-color 0.2s;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .option-btn:hover:not(:disabled) {
+            background-color: #f3f4f6;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+        .correct {
+            background-color: #d1fae5;
+            border-color: #10b981;
+        }
+        .incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
         }
     </style>
 </head>
@@ -253,6 +264,18 @@
                 </ul>
             </div>
 
+            <div class="lg:col-span-3 bg-white rounded-lg shadow-xl p-6 border-t-4 border-[#00A1E4]">
+                <h2 class="text-2xl font-bold text-[#005082] mb-4 text-center">Bilginizi Test Edin: Vaka Soruları</h2>
+                <p class="text-center max-w-3xl mx-auto mb-6">Aşağıdaki TUS/YDUS tarzı vaka soruları ile öğreniminizi pekiştirin. Bir seçenek belirleyerek cevabınızı kontrol edin.</p>
+                <div id="quiz-container" class="max-w-3xl mx-auto p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div id="question-vignette" class="prose max-w-none text-left mb-4"></div>
+                    <div id="question-text" class="prose max-w-none text-left font-semibold mb-4"></div>
+                    <div id="options-container" class="space-y-3"></div>
+                    <div id="explanation-container" class="hidden mt-4 p-3 bg-blue-100 border-l-4 border-blue-500 text-blue-700 rounded-r-lg"></div>
+                    <button id="next-question-btn" class="hidden mt-6 w-full bg-[#0077C0] hover:bg-[#005082] text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                        Sonraki Soru
+                    </button>
+                </div>
             </div>
             
         </main>
@@ -419,64 +442,120 @@
                     }
                 });
             }
-
-            const generateCaseBtn = document.getElementById('generate-case-btn');
-            const caseResultContainer = document.getElementById('case-result-container');
-            const caseTopicSelect = document.getElementById('case-topic');
-
-            const generateCaseStudy = async () => {
-                caseResultContainer.innerHTML = '<div class="loader"></div>';
-                generateCaseBtn.disabled = true;
-                generateCaseBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-                const selectedTopic = caseTopicSelect.value;
-                const systemPrompt = "Siz uzman bir patoloji TUS/YDUS soru yazarısınız. Asistanlar ve uzmanlar için kısa ve verimli klinik senaryolar hazırlarsınız. Her vaka bir klinik öykü, önemli laboratuvar/patoloji bulguları, dört farklı seçeneği olan çoktan seçmeli bir soru, doğru cevap ve kısa, eğitici bir açıklama içermelidir.";
-                const userQuery = `Şu konu hakkında TUS/YDUS tarzı çoktan seçmeli bir soru oluştur: ${selectedTopic}. Sorunun, modern patoloji eğitiminde tartışılan temel tanısal kriterleri veya ayırıcı tanıları test ettiğinden emin olun. Çıktıyı 'Senaryo', 'Soru', 'Seçenekler', 'Doğru Cevap' ve 'Açıklama' için net başlıklarla biçimlendirin.`;
-                
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-                const payload = {
-                    contents: [{ parts: [{ text: userQuery }] }],
-                    systemInstruction: {
-                        parts: [{ text: systemPrompt }]
-                    },
-                };
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`API çağrısı başarısız oldu: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    const candidate = result.candidates?.[0];
-
-                    if (candidate && candidate.content?.parts?.[0]?.text) {
-                        const text = candidate.content.parts[0].text;
-                        const formattedText = text
-                            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#005082]">$1</strong>')
-                            .replace(/\n/g, '<br>');
-                        caseResultContainer.innerHTML = `<div class="prose max-w-none text-left">${formattedText}</div>`;
-                    } else {
-                        throw new Error("API'den geçersiz yanıt yapısı.");
-                    }
-                } catch (error) {
-                    console.error("Vaka çalışması oluşturulurken hata:", error);
-                    caseResultContainer.innerHTML = `<p class="text-red-600 text-center">Üzgünüz, vaka çalışması oluşturulurken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>`;
-                } finally {
-                    generateCaseBtn.disabled = false;
-                    generateCaseBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            // --- Vaka Soruları Bölümü ---
+            const questions = [
+                {
+                    vignette: "65 yaşında bir erkek hasta, hızla büyüyen servikal lenfadenopati ile başvuruyor. Lenf nodu biyopsisi, büyük, pleomorfik B hücrelerinden oluşan diffüz bir infiltrasyon gösteriyor. İmmünohistokimya (İHK) çalışmalarında hücreler CD20, BCL6, MYC (%70) ve BCL2 (%80) için pozitiftir. Ki-67 proliferasyon indeksi %95'tir.",
+                    question: "Bu bulgularla en olası tanıyı kesinleştirmek için bir sonraki en uygun adım aşağıdakilerden hangisidir?",
+                    options: [
+                        "TdT ve Cyclin D1 immünohistokimyası",
+                        "*MYC* ve *BCL2/BCL6* gen yeniden düzenlemeleri için FISH analizi",
+                        "EBV-EBER in situ hibridizasyonu",
+                        "Akış sitometri ile klonalite analizi"
+                    ],
+                    correctAnswerIndex: 1,
+                    explanation: "İHK'da MYC ve BCL2'nin birlikte ekspresyonu ('double-expressor') saptandığında, 'double-hit' lenfoma tanısını doğrulamak veya dışlamak için *MYC* ve *BCL2/BCL6* yeniden düzenlemelerini saptayan FISH analizi zorunludur."
+                },
+                {
+                    vignette: "50 yaşında bir kadın hastanın aksiller lenf nodu biyopsisinde, dağılmış kromatinli, dar sitoplazmalı ve çok sayıda mitoz içeren, lenfoblastlara benzeyen orta büyüklükte hücrelerden oluşan bir tümör görülüyor. İHK'da tümör hücreleri CD19, CD20, PAX5 pozitiftir, ancak TdT ve Cyclin D1 negatiftir. FISH analizi *MYC*, *BCL2* veya *BCL6* genlerinde yeniden düzenleme saptamamıştır.",
+                    question: "Bu bulgulara göre en olası tanı aşağıdakilerden hangisidir?",
+                    options: [
+                        "B-Lenfoblastik Lenfoma/Lösemi (B-ALL)",
+                        "Mantle Hücreli Lenfoma, blastoid varyant",
+                        "Yüksek gradeli B-hücreli lenfoma, NOS (BTA)",
+                        "Burkitt Lenfoma"
+                    ],
+                    correctAnswerIndex: 2,
+                    explanation: "Blastoid morfolojiye sahip, ancak B-ALL (TdT negatif) ve blastoid Mantle hücreli lenfomayı (Cyclin D1 negatif) dışlayan ve 'double/triple hit' genetiği olmayan bir B hücreli neoplazm, HGBCL, NOS kategorisine girer."
+                },
+                {
+                    vignette: "Genç bir hastadan alınan çene biyopsisinde, 'yıldızlı gökyüzü' manzarası oluşturan, çok sayıda tingible body makrofajı içeren, monomorfik orta büyüklükte B hücrelerinin diffüz infiltrasyonu görülmektedir. Proliferasyon indeksi (Ki-67) neredeyse %100'dür.",
+                    question: "Bu morfoloji ile en uyumlu olan ve tanıyı destekleyecek olan immünohistokimyasal bulgu aşağıdakilerden hangisidir?",
+                    options: [
+                        "BCL2 pozitif, BCL6 pozitif, MYC pozitif",
+                        "BCL2 negatif, BCL6 pozitif, MYC pozitif",
+                        "TdT pozitif, CD10 pozitif",
+                        "Cyclin D1 pozitif, SOX11 pozitif"
+                    ],
+                    correctAnswerIndex: 1,
+                    explanation: "Klasik Burkitt Lenfoma, tipik olarak BCL2 negatiftir. Yüksek Ki-67, BCL6 ve MYC pozitivitesi ile birlikte BCL2'nin negatif olması, bu tanıyı HGBCL ve DBBHL'den ayırmada önemli bir özelliktir."
+                },
+                 {
+                    vignette: "70 yaşında bir hastanın lenf nodu biyopsisinde, büyük centroblast benzeri hücrelerin yanı sıra daha belirgin nükleollere sahip immunoblast benzeri hücreler de içeren polimorfik bir infiltrat görülüyor. İHK'da hücreler CD20, CD10, BCL6 ve MUM1 pozitiftir. MYC ekspresyonu %30, BCL2 ekspresyonu %60'tır. FISH analizinde gen yeniden düzenlemesi saptanmamıştır.",
+                    question: "Bu vaka için en uygun tanı hangisidir?",
+                    options: [
+                        "Yüksek gradeli B-hücreli lenfoma, double hit",
+                        "Diffüz büyük B-hücreli lenfoma, NOS (BTA)",
+                        "Plazmablastik lenfoma",
+                        "Primer mediastinal (timik) büyük B-hücreli lenfoma"
+                    ],
+                    correctAnswerIndex: 1,
+                    explanation: "Bu morfolojik ve immünohistokimyasal bulgular, 'double hit' genetiği olmaksızın, en sık görülen agresif lenfoma tipi olan Diffüz Büyük B Hücreli Lenfoma, NOS (BTA) ile uyumludur. MYC ve BCL2 ko-ekspresyonu olsa bile, FISH negatifliği 'double hit' tanısını dışlar."
                 }
-            };
+            ];
 
-            generateCaseBtn.addEventListener('click', generateCaseStudy);
+            let currentQuestionIndex = 0;
+            const vignetteEl = document.getElementById('question-vignette');
+            const questionEl = document.getElementById('question-text');
+            const optionsEl = document.getElementById('options-container');
+            const explanationEl = document.getElementById('explanation-container');
+            const nextBtn = document.getElementById('next-question-btn');
+
+            function displayQuestion(index) {
+                const q = questions[index];
+                vignetteEl.innerHTML = `<p><strong>Senaryo:</strong> ${q.vignette}</p>`;
+                questionEl.innerHTML = `<p><strong>Soru:</strong> ${q.question}</p>`;
+                
+                optionsEl.innerHTML = '';
+                q.options.forEach((option, i) => {
+                    const button = document.createElement('button');
+                    button.textContent = `${String.fromCharCode(65 + i)}) ${option}`;
+                    button.classList.add('option-btn');
+                    button.dataset.index = i;
+                    button.addEventListener('click', selectAnswer);
+                    optionsEl.appendChild(button);
+                });
+
+                explanationEl.classList.add('hidden');
+                explanationEl.innerHTML = '';
+                nextBtn.classList.add('hidden');
+            }
+
+            function selectAnswer(e) {
+                const selectedButton = e.target;
+                const selectedAnswerIndex = parseInt(selectedButton.dataset.index);
+                const correctAnswerIndex = questions[currentQuestionIndex].correctAnswerIndex;
+
+                Array.from(optionsEl.children).forEach(btn => {
+                    btn.disabled = true;
+                    const btnIndex = parseInt(btn.dataset.index);
+                    if (btnIndex === correctAnswerIndex) {
+                        btn.classList.add('correct');
+                    } else if (btnIndex === selectedAnswerIndex) {
+                         btn.classList.add('incorrect');
+                    }
+                });
+                
+                explanationEl.innerHTML = `<strong>Açıklama:</strong> ${questions[currentQuestionIndex].explanation}`;
+                explanationEl.classList.remove('hidden');
+                
+                if(currentQuestionIndex < questions.length - 1) {
+                    nextBtn.classList.remove('hidden');
+                }
+            }
+
+            nextBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    displayQuestion(currentQuestionIndex);
+                }
+            });
+
+            // İlk soruyu yükle
+            displayQuestion(currentQuestionIndex);
         });
     </script>
 </body>
 </html>
+
