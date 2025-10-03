@@ -3,8 +3,6 @@ Bu proje, patologlar, patoloji asistanları ve tıp öğrencileri için Yüksek 
 
 Canlı Demoyu Görüntüle: https://metinciris.github.io/B-lenfoma/
 
-(Not: Bu bir yer tutucu resimdir. Projenizin bir ekran görüntüsünü alıp bu linki güncelleyebilirsiniz.)
-
 🌟 Özellikler
 Modern ve Duyarlı Tasarım: Tailwind CSS ile oluşturulmuş, tüm cihazlarda (mobil, tablet, masaüstü) harika bir kullanıcı deneyimi sunan arayüz.
 
@@ -12,7 +10,7 @@ Modern ve Duyarlı Tasarım: Tailwind CSS ile oluşturulmuş, tüm cihazlarda (m
 
 Anlaşılır Tanı Akış Şeması: Patologların tanı sürecinde izlemesi gereken adımları gösteren, özel olarak HTML ve CSS ile tasarlanmış bir akış şeması.
 
-Yapay Zeka Destekli Öğrenme: Google Gemini API entegrasyonu sayesinde, seçilen bir konu hakkında isteğe bağlı olarak TUS/YDUS tarzı vaka çalışmaları ve soruları oluşturarak öğrenmeyi pekiştirir.
+İnteraktif Vaka Soruları: Patoloji bilginizi test etmek ve pekiştirmek için hazırlanmış, TUS/YDUS formatında vaka senaryoları ve çoktan seçmeli sorular.
 
 Tamamen Türkçe İçerik: Türkiye'deki patoloji uzmanları ve öğrencileri için tamamen yerelleştirilmiş içerik.
 
@@ -21,11 +19,9 @@ HTML5: Sayfanın temel yapısı.
 
 Tailwind CSS: Modern ve duyarlı tasarım için kullanılan CSS çatısı.
 
-JavaScript: İnteraktif özellikler, grafik oluşturma ve API entegrasyonu.
+JavaScript: İnteraktif özellikler ve grafik oluşturma.
 
 Chart.js: Veri görselleştirmesi için kullanılan grafik kütüphanesi.
-
-Google Gemini API: Yapay zeka destekli vaka çalışması oluşturma özelliği.
 
 🚀 Kurulum ve Kullanım
 Bu proje statik bir web sayfası olduğundan karmaşık bir kurulum gerektirmez.
