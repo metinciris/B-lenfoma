@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yüksek Gradeli B Hücreli Lenfoma Rehberi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- 
+    Palette Seçimi: Parlak Maviler (#00A1E4, #0077C0, #005082, #F2F2F2, #333333)
+
+    Anlatı ve Yapı Planı:
+    1.  Giriş: HGBCL'yi ve önemini tanımla.
+    2.  İki Yol: Genetik olarak tanımlanan (Double-Hit) ve morfolojik olarak tanımlanan (NOS) tipleri görsel olarak ayır.
+    3.  Detaylı Bakış (Double-Hit): Genetik, değişken morfoloji (donut grafiği) ve İHK vs. FISH konseptine odaklan.
+    4.  Detaylı Bakış (NOS): Blastoid/intermedier morfolojinin bir dışlama tanısı olduğuna odaklan.
+    5.  Tanısal İş Akışı: Kullanıcıyı süreç boyunca yönlendirmek için HTML/CSS ile merkezi bir akış şeması oluştur.
+    6.  Ayırıcı Tanılar: HGBCL'yi Burkitt Lenfoma, DBBHL, B-ALL ve Blastoid Mantle Hücreli Lenfoma gibi önemli taklitçilerden ayırmak için bir çubuk grafik ve karşılaştırma kartları kullan.
+    7.  Gemini AI Araçları: Öğrenmeyi geliştirmek için yapay zeka destekli vaka çalışması oluşturma amacıyla interaktif bir bölüm ekle.
+    8.  Önemli Notlar: En kritik tanısal ipuçlarıyla sonlandır.
+
+    Görselleştirme Seçimleri (SVG / MERMAID JS KULLANILMADI):
+    - Veri Noktası: Genel Tanı Süreci -> Hedef: Organize Etmek -> Seçilen Görsel: HTML/CSS ve Tailwind ile Akış Şeması. Gerekçe: Kısıtlı kütüphaneler olmadan süreç akışları için en iyi yöntem.
+    - Veri Noktası: Double-Hit Lenfomada Değişken Morfoloji -> Hedef: Bilgilendirmek/Karşılaştırmak -> Seçilen Görsel: Donut Grafiği (Chart.js). Gerekçe: Morfolojik görünümlerin oransal dağılımını net bir şekilde gösterir.
+    - Veri Noktası: Proliferasyon Oranı -> Hedef: Bilgilendirmek -> Seçilen Görsel: Büyük Tek Sayı Kartı. Gerekçe: Önemli bir metrik için yüksek etkili bir yöntem.
+    - Veri Noktası: HGBCL vs. Taklitçiler Karşılaştırması -> Hedef: Karşılaştırmak -> Seçilen Görsel: Gruplandırılmış Çubuk Grafik (Chart.js). Gerekçe: Farklı lenfoma türleri arasında metrikleri (Ki-67, BCL2) karşılaştırmak için mükemmeldir.
+    - Veri Noktası: Blastoid Taklitçi İHK -> Hedef: Karşılaştırmak -> Seçilen Görsel: Stilli HTML karşılaştırma kartları. Gerekçe: İkili pozitif/negatif İHK belirteçlerini sunmak için bir grafikten daha nettir.
+    
+    Onay: Çıktının hiçbir yerinde Mermaid JS veya SVG kullanılmamıştır.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F2F2F2;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .flow-node {
+            border: 2px solid #0077C0;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            position: relative;
+        }
+        .flow-arrow {
+            position: relative;
+            width: 2px;
+            background-color: #0077C0;
+            height: 3rem;
+            margin: 0.5rem auto;
+        }
+        .flow-arrow::after {
+            content: '';
+            position: absolute;
+            left: -5px;
+            bottom: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #0077C0;
+        }
+        .flow-split {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .flow-split-arm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .flow-connector-h {
+            height: 2px;
+            background-color: #0077C0;
+            width: 100%;
+            position: relative;
+        }
+        .flow-connector-v {
+            width: 2px;
+            background-color: #0077C0;
+            height: 1.5rem;
+        }
+        .flow-label {
+            position: absolute;
+            top: -1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #F2F2F2;
+            padding: 0 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #005082;
+            white-space: nowrap;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #00A1E4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-[#333333]">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#005082] mb-2">Patologlar İçin Yüksek Gradeli B Hücreli Lenfoma Rehberi</h1>
+            <p class="text-lg text-[#0077C0]">DSÖ Sınıflaması, Tanısal Yaklaşım ve Önemli Ayırıcı Tanılar Üzerine Bir İnfografik</p>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <div class="lg:col-span-3 bg-white rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold text-[#005082] mb-4 text-center">Temel Soru: Yüksek Gradeli B Hücreli Lenfomayı Ne Tanımlar?</h2>
+                <p class="text-center max-w-4xl mx-auto">DSÖ Sınıflamasına göre, HGBCL sadece tanımlayıcı bir terim değil, agresif B hücreli lenfomalar için spesifik bir tanı kategorisidir. Tanı, iki temel yoldan birine dayanır: spesifik genetik yeniden düzenlemeler veya yüksek gradeli morfolojik özellikler. Doğru sınıflandırma, prognoz ve tedavi üzerindeki önemli etkisi nedeniyle kritik öneme sahiptir.</p>
+            </div>
+
+            <div class="md:col-span-2 lg:col-span-3 bg-white rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold text-[#005082] mb-4 text-center">Tanısal İş Akışına Genel Bakış</h2>
+                <div class="w-full">
+                    <div class="flow-node max-w-md mx-auto">
+                        <h3 class="font-semibold">Başlangıç: Büyük B Hücreli Lenfoma Morfolojisi</h3>
+                    </div>
+                    <div class="flow-arrow"></div>
+                    <div class="flow-node max-w-md mx-auto">
+                        <h3 class="font-semibold">İlk Değerlendirme: Morfoloji ve İHK Taraması</h3>
+                        <p class="text-sm">Hücre özellikleri ve protein ekspresyonunu (MYC, BCL2 vb.) değerlendir</p>
+                    </div>
+                    <div class="flow-split">
+                         <div class="flow-split-arm">
+                             <div class="w-full flex justify-center"><div class="flow-connector-v"></div></div>
+                             <div class="w-full flex justify-center"><div class="flow-connector-h"><span class="flow-label">Yol 1: Genetik Tanım</span></div></div>
+                             <div class="w-full flex justify-center"><div class="flow-connector-v"></div></div>
+                             <div class="flow-arrow"></div>
+                             <div class="flow-node w-full">
+                                 <h3 class="font-semibold">FISH Testi</h3>
+                                 <p class="text-sm">*MYC* VE *BCL2* ve/veya *BCL6* Yeniden Düzenlemeleri İçin Pozitif mi?</p>
+                             </div>
+                             <div class="flow-arrow"></div>
+                             <div class="flow-node w-full bg-[#E6F6FF]">
+                                 <h3 class="font-bold text-[#005082]">Tanı: *MYC* ve *BCL2/BCL6* Yeniden Düzenlemeli HGBCL</h3>
+                                 <p class="text-sm">(Morfolojiden Bağımsız)</p>
+                             </div>
+                         </div>
+                         <div class="flow-split-arm">
+                            <div class="w-full flex justify-center"><div class="flow-connector-v"></div></div>
+                            <div class="w-full flex justify-center"><div class="flow-connector-h"><span class="flow-label">Yol 2: Morfolojik Tanım</span></div></div>
+                            <div class="w-full flex justify-center"><div class="flow-connector-v"></div></div>
+                            <div class="flow-arrow"></div>
+                            <div class="flow-node w-full">
+                                <h3 class="font-semibold">Morfoloji Kontrolü</h3>
+                                <p class="text-sm">Blastoid veya İntermedier/Burkitt Benzeri Özellikler?</p>
+                            </div>
+                            <div class="flow-arrow"></div>
+                            <div class="flow-node w-full">
+                               <h3 class="font-semibold">FISH Negatif</h3>
+                               <p class="text-sm">Double/Triple Hit için</p>
+                           </div>
+                           <div class="flow-arrow"></div>
+                           <div class="flow-node w-full bg-[#E6F6FF]">
+                                <h3 class="font-bold text-[#005082]">Tanı: HGBCL, NOS (BTA)</h3>
+                                <p class="text-sm">(Dışlama Tanısı)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-1 lg:col-span-2 bg-white rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold text-[#005082] mb-4">Detaylı Bakış: Gen Yeniden Düzenlemeli HGBCL ("Double/Triple-Hit")</h2>
+                <p class="mb-4">Bu kategori, FISH ile saptanan bir *MYC* yeniden düzenlemesinin *BCL2* ve/veya *BCL6* yeniden düzenlemesi ile kombinasyonuyla tanımlanır. Asistanlar için önemli bir nokta, morfolojinin yanıltıcı olabilmesi ve sıklıkla konvansiyonel DBBHL'ye benzemesidir.</p>
+                <div class="chart-container">
+                    <canvas id="morphologyChart"></canvas>
+                </div>
+                <p class="text-center text-sm mt-2 font-semibold">"Double-Hit" Lenfomada Morfoloji Değişkendir</p>
+            </div>
+            
+            <div class="space-y-8">
+                <div class="bg-white rounded-lg shadow-xl p-6 text-center">
+                    <h3 class="text-lg font-semibold text-[#005082]">Proliferasyon Hızı</h3>
+                    <p class="text-6xl font-bold text-[#00A1E4] my-2">&gt;%90</p>
+                    <p class="text-sm">Ki-67 proliferasyon indeksi tipik olarak çok yüksektir, bu da hızlı hücre bölünmesini ve klinik agresifliği gösterir.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-xl p-6">
+                    <h3 class="text-lg font-semibold text-[#005082] mb-2">İHK Bir Taramadır, FISH Tanıdır</h3>
+                    <p class="text-sm">İHK ile MYC (>%40) ve BCL2 (>%50) proteinlerinin birlikte ekspresyonu bir "Double-Expressor" lenfomayı tanımlar. Bu bulgunun prognostik değeri vardır ancak bir "Double-Hit" tanısı anlamına <span class="font-bold">gelmez</span>. Her zaman kesin tanı için FISH testini tetiklemelidir.</p>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 lg:col-span-3 bg-white rounded-lg shadow-xl p-6">
+                 <h2 class="text-2xl font-bold text-[#005082] mb-4">Detaylı Bakış: HGBCL, Başka Türlü Adlandırılamayan (NOS/BTA)</h2>
+                 <p class="mb-4">Bu kategori, "Double/Triple-Hit" genetiğinin yokluğunda morfoloji ile tanımlanır. Diğer antiteler ekarte edildikten sonra konulan bir dışlama tanısıdır. Anahtar morfolojik paternler şunlardır:</p>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div class="border-l-4 border-[#00A1E4] p-4 bg-gray-50 rounded-r-lg">
+                         <h3 class="font-bold text-lg text-[#0077C0]">Blastoid Morfoloji</h3>
+                         <p class="text-sm">Hücreler, dağılmış kromatin, dar sitoplazma ve yüksek mitotik oran ile lenfoblastlara benzer. Önemli ayırıcı tanısı B-ALL'dir (TdT pozitif).</p>
+                     </div>
+                     <div class="border-l-4 border-[#00A1E4] p-4 bg-gray-50 rounded-r-lg">
+                         <h3 class="font-bold text-lg text-[#0077C0]">İntermedier (Burkitt Benzeri) Morfoloji</h3>
+                         <p class="text-sm">Özellikler DBBHL ile klasik Burkitt lenfoma arasındadır ve Burkitt'ten daha fazla hücresel pleomorfizm gösterir. Önemli ayırıcı tanısı Burkitt Lenfoma'nın kendisidir.</p>
+                     </div>
+                 </div>
+            </div>
+            
+            <div class="md:col-span-2 bg-white rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold text-[#005082] mb-4">Ayırıcı Tanı: HGBCL ve Önemli Taklitçileri</h2>
+                <p class="mb-4">HGBCL'yi taklitçilerinden ayırmak, uzmanlık sınavlarında sık karşılaşılan bir zorluktur. Aşağıdaki çubuk grafik, HGBCL, klasik Burkitt Lenfoma ve DBBHL, NOS arasındaki temel immünofenotipik farklılıkları vurgulamaktadır.</p>
+                <div class="chart-container">
+                    <canvas id="differentialChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <h2 class="text-xl font-bold text-[#005082] mb-4">Blastoid Morfoloji Taklitçileri</h2>
+                <p class="text-sm mb-4">Blastoid morfoloji ile karşılaşıldığında, diğer agresif lenfomaları dışlamak için odaklanmış bir İHK paneli esastır.</p>
+                <ul class="space-y-4">
+                    <li class="p-3 bg-[#E6F6FF] rounded-lg">
+                        <h3 class="font-semibold text-[#005082]">B-Lenfoblastik Lenfoma/Lösemi (B-ALL)</h3>
+                        <p class="text-sm">TdT için <span class="font-bold text-green-600">POZİTİF</span>.</p>
+                    </li>
+                    <li class="p-3 bg-[#E6F6FF] rounded-lg">
+                        <h3 class="font-semibold text-[#005082]">Mantle Hücreli Lenfoma, Blastoid Varyant</h3>
+                        <p class="text-sm">Cyclin D1 ve SOX11 için <span class="font-bold text-green-600">POZİTİF</span>.</p>
+                    </li>
+                     <li class="p-3 bg-gray-200 rounded-lg">
+                        <h3 class="font-semibold text-gray-700">HGBCL, NOS (Blastoid)</h3>
+                        <p class="text-sm">TdT ve Cyclin D1 için <span class="font-bold text-red-600">NEGATİF</span>.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="lg:col-span-3 bg-white rounded-lg shadow-xl p-6 border-t-4 border-[#00A1E4]">
+                <h2 class="text-2xl font-bold text-[#005082] mb-4 text-center">✨ Yapay Zeka Destekli Öğrenme Araçları</h2>
+                <p class="text-center max-w-3xl mx-auto mb-6">Gemini API ile klinik senaryolar üreterek anlayışınızı geliştirin ve sınavlara hazırlanın.</p>
+                <div class="max-w-2xl mx-auto">
+                    <label for="case-topic" class="block text-sm font-medium text-gray-700">Bir Konu Seçin:</label>
+                    <select id="case-topic" name="case-topic" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#0077C0] focus:border-[#0077C0] sm:text-sm rounded-md">
+                        <option>MYC ve BCL2 yeniden düzenlemeli HGBCL</option>
+                        <option>HGBCL, NOS (Blastoid Morfoloji)</option>
+                        <option>Burkitt benzeri Lenfomanın Ayırıcı Tanısı</option>
+                        <option>Blastoid Morfoloji Ayırıcı Tanısı (B-ALL'ye karşı)</option>
+                    </select>
+                    <button id="generate-case-btn" class="mt-4 w-full bg-[#0077C0] hover:bg-[#005082] text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                        TUS/YDUS Tarzı Vaka Sorusu Oluştur
+                    </button>
+                    <div id="case-result-container" class="mt-6 p-4 bg-gray-50 rounded-lg min-h-[100px] border border-gray-200">
+                        <p class="text-center text-gray-500">Oluşturulan vakanız burada görünecektir...</p>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+
+        <footer class="mt-12 pt-6 border-t border-gray-300">
+            <h2 class="text-2xl font-bold text-[#005082] mb-4 text-center">Sınav Tekrarı İçin Kilit Noktalar</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-[#005082] text-white p-4 rounded-lg shadow-lg">
+                    <h3 class="font-bold mb-1">Genetik > Morfoloji</h3>
+                    <p class="text-sm">Bir "Double/Triple-Hit" genetik sonucu, hücreler konvansiyonel DBBHL gibi görünse bile HGBCL'yi tanımlar.</p>
+                </div>
+                <div class="bg-[#005082] text-white p-4 rounded-lg shadow-lg">
+                    <h3 class="font-bold mb-1">İHK Bir Taramadır</h3>
+                    <p class="text-sm">MYC/BCL2 protein ko-ekspresyonu, nihai bir tanı değil, FISH testini zorunlu kılan bir kırmızı bayraktır.</p>
+                </div>
+                <div class="bg-[#005082] text-white p-4 rounded-lg shadow-lg">
+                    <h3 class="font-bold mb-1">NOS Morfolojiktir</h3>
+                    <p class="text-sm">HGBCL, NOS, blastoid veya intermedier özellikler VE DH/TH genetiğinin yokluğu ile tanımlanır.</p>
+                </div>
+                 <div class="bg-[#005082] text-white p-4 rounded-lg shadow-lg">
+                    <h3 class="font-bold mb-1">Taklitçileri Tanıyın</h3>
+                    <p class="text-sm">Blastoid morfolojili vakalarda B-ALL ve Blastoid MCL'yi ekarte etmek için daima TdT ve Cyclin D1 kullanın.</p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const wrapLabels = (labels, maxChars) => {
+                return labels.map(label => {
+                    if (label.length <= maxChars) {
+                        return label;
+                    }
+                    const words = label.split(' ');
+                    const lines = [];
+                    let currentLine = '';
+                    words.forEach(word => {
+                        if ((currentLine + ' ' + word).trim().length > maxChars && currentLine.length > 0) {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        } else {
+                            currentLine = (currentLine + ' ' + word).trim();
+                        }
+                    });
+                    if (currentLine.length > 0) {
+                        lines.push(currentLine);
+                    }
+                    return lines;
+                });
+            };
+
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                    return label.join(' ');
+                }
+                return label;
+            };
+            
+            const sharedChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                           color: '#333333'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback
+                        }
+                    }
+                }
+            };
+            
+            const brilliantBlues = {
+                primary: '#00A1E4',
+                secondary: '#0077C0',
+                dark: '#005082'
+            };
+
+            const morphologyCtx = document.getElementById('morphologyChart');
+            if(morphologyCtx) {
+                new Chart(morphologyCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['DBBHL, BTA Benzeri', 'Blastoid veya İntermedier'],
+                        datasets: [{
+                            label: 'Morfolojik Görünüm %',
+                            data: [70, 30],
+                            backgroundColor: [brilliantBlues.secondary, brilliantBlues.primary],
+                            borderColor: '#F2F2F2',
+                            borderWidth: 4
+                        }]
+                    },
+                    options: sharedChartOptions
+                });
+            }
+
+            const differentialCtx = document.getElementById('differentialChart');
+            if (differentialCtx) {
+                 new Chart(differentialCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: wrapLabels(['DH/TH ile HGBCL', 'Klasik Burkitt Lenfoma', 'DBBHL, BTA (Double Expressor)'], 16),
+                        datasets: [
+                            {
+                                label: 'Ki-67 İndeksi (%)',
+                                data: [95, 100, 80],
+                                backgroundColor: brilliantBlues.secondary,
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'BCL2 Ekspresyonu (İHK ile)',
+                                data: [90, 5, 90],
+                                backgroundColor: brilliantBlues.primary,
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        ...sharedChartOptions,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    color: '#333333',
+                                    callback: function(value) {
+                                        return '%' + value
+                                    }
+                                }
+                            },
+                             x: {
+                                ticks: {
+                                    color: '#333333'
+                                }
+                            }
+                        },
+                        plugins: {
+                            ...sharedChartOptions.plugins,
+                            tooltip: {
+                                ...sharedChartOptions.plugins.tooltip,
+                                callbacks: {
+                                    ...sharedChartOptions.plugins.tooltip.callbacks,
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += '%' + context.parsed.y;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const generateCaseBtn = document.getElementById('generate-case-btn');
+            const caseResultContainer = document.getElementById('case-result-container');
+            const caseTopicSelect = document.getElementById('case-topic');
+
+            const generateCaseStudy = async () => {
+                caseResultContainer.innerHTML = '<div class="loader"></div>';
+                generateCaseBtn.disabled = true;
+                generateCaseBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                const selectedTopic = caseTopicSelect.value;
+                const systemPrompt = "Siz uzman bir patoloji TUS/YDUS soru yazarısınız. Asistanlar ve uzmanlar için kısa ve verimli klinik senaryolar hazırlarsınız. Her vaka bir klinik öykü, önemli laboratuvar/patoloji bulguları, dört farklı seçeneği olan çoktan seçmeli bir soru, doğru cevap ve kısa, eğitici bir açıklama içermelidir.";
+                const userQuery = `Şu konu hakkında TUS/YDUS tarzı çoktan seçmeli bir soru oluştur: ${selectedTopic}. Sorunun, modern patoloji eğitiminde tartışılan temel tanısal kriterleri veya ayırıcı tanıları test ettiğinden emin olun. Çıktıyı 'Senaryo', 'Soru', 'Seçenekler', 'Doğru Cevap' ve 'Açıklama' için net başlıklarla biçimlendirin.`;
+                
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API çağrısı başarısız oldu: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const candidate = result.candidates?.[0];
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        const text = candidate.content.parts[0].text;
+                        const formattedText = text
+                            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#005082]">$1</strong>')
+                            .replace(/\n/g, '<br>');
+                        caseResultContainer.innerHTML = `<div class="prose max-w-none text-left">${formattedText}</div>`;
+                    } else {
+                        throw new Error("API'den geçersiz yanıt yapısı.");
+                    }
+                } catch (error) {
+                    console.error("Vaka çalışması oluşturulurken hata:", error);
+                    caseResultContainer.innerHTML = `<p class="text-red-600 text-center">Üzgünüz, vaka çalışması oluşturulurken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>`;
+                } finally {
+                    generateCaseBtn.disabled = false;
+                    generateCaseBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            };
+
+            generateCaseBtn.addEventListener('click', generateCaseStudy);
+        });
+    </script>
+</body>
+</html>
