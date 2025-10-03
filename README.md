@@ -1,7 +1,7 @@
 Patologlar için Yüksek Gradeli B Hücreli Lenfoma Rehberi
 Bu proje, patologlar, patoloji asistanları ve tıp öğrencileri için Yüksek Gradeli B Hücreli Lenfomalar (HGBCL) konusunda modern, interaktif ve mobil uyumlu bir eğitim rehberi sunmaktadır. DSÖ (Dünya Sağlık Örgütü) sınıflandırması, tanısal iş akışları ve önemli ayırıcı tanılar üzerine odaklanılmıştır.
 
-Canlı Demoyu Görüntüle
+Canlı Demoyu Görüntüle: https://metinciris.github.io/B-lenfoma/
 
 (Not: Bu bir yer tutucu resimdir. Projenizin bir ekran görüntüsünü alıp bu linki güncelleyebilirsiniz.)
 
